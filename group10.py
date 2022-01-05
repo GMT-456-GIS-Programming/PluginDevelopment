@@ -33,6 +33,7 @@ from .group10_dialog import group10Dialog
 import os.path
 import ogr
 
+
 class group10:
     """QGIS Plugin Implementation."""
 
@@ -82,7 +83,6 @@ class group10:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('group10', message)
-
 
     def add_action(
         self,
