@@ -8,6 +8,7 @@
 
 """
 
+
 __author__ = 'emreabaogluu@gmail.com'
 __date__ = '2021-12-24'
 __copyright__ = 'Copyright 2021, group10'
@@ -15,7 +16,6 @@ __copyright__ = 'Copyright 2021, group10'
 import unittest
 
 from qgis.PyQt.QtGui import QIcon
-
 
 
 class group10DialogTest(unittest.TestCase):
