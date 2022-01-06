@@ -21,7 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
@@ -31,7 +31,7 @@ from .resources import *
 # Import the code for the dialog
 from .group10_dialog import group10Dialog
 import os.path
-import ogr
+from osgeo import ogr
 
 
 class group10:
@@ -167,7 +167,7 @@ class group10:
             text=self.tr(u''),
             callback=self.run,
             parent=self.iface.mainWindow())
-
+        
         # will be set False in run()
         self.first_start = True
 
@@ -212,13 +212,11 @@ class group10:
     
     def run(self):
         """Run method that performs all the real work"""
-
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
             self.dlg = group10Dialog()
             self.dlg.toolButton.clicked.connect(self.shapefile_sec)
+            self.dlg.runButton.clicked.connect(self.run)
             
 
         # show the dialog
@@ -228,17 +226,15 @@ class group10:
         # See if OK was pressed
         if result:
             if self.kontrol == True:
+                totalMin=9999999999
+                processed=0
 
                 if not self.vlayer.isValid():
-                    print("Layer failed to load!")
-                    
+                    print("[ERR1] Layer is not a valid.")                    
                 else:
                     QgsProject.instance().addMapLayer(self.vlayer)
-
                     oznitelikler = self.vlayer.fields().names()
-
-                    print(oznitelikler)
-                    
+                    print(oznitelikler)                    
                     eklenecekOznitelikler = ["minMesafe","gercekMes"]
                     self.vlayer.startEditing()
                     dp = self.vlayer.dataProvider()
@@ -260,6 +256,8 @@ class group10:
                         for cizgi in lines:
                             geom = cizgi.geometry()
                             gercekMesafe = d.measureLine(geom.asMultiPolyline()[0])
+                            processed=processed+1
+
 
                             print(gercekMesafe)
 
@@ -274,7 +272,8 @@ class group10:
 
                             minMesafe = d.measureLine(minCizgi.geometry().asPolyline())
 
-                            print("minimum mesafe : ", minMesafe)
+                            print("Minimum Distance : ", minMesafe)
+                            totalMin=min(totalMin,minMesafe)
 
                             cizgi["minMesafe"] = minMesafe
                             cizgi["gercekMes"] = gercekMesafe
@@ -285,3 +284,8 @@ class group10:
 
                         self.vlayer.updateFields()
                         self.vlayer.commitChanges()
+                        self.dlg.minLabel.setText("Min. Length: "+str(totalMin))
+                        self.dlg.procLineSegment.setText("Processed Line Series:"+str(processed))
+                    else:
+                        print("[ERR2] No line segments exist in current layer.");
+    

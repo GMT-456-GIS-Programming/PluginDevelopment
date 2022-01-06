@@ -23,7 +23,7 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
-
+from .group10 import group10
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load group10 class from file group10.
@@ -32,5 +32,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-from .group10 import group10
     return group10(iface)
